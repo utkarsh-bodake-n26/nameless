@@ -3,7 +3,23 @@
 const dynamoDb = require('../config/db');
 const sqs = require('../config/sqs');
 
-const getTransaction = (userId, space) => {
+const getBalances = (userId) => {
+    const sourceSpaceParam = {
+        TableName: process.env.balanceTableName,
+        Key: {
+            userId: userId
+        }
+    };
+
+    return new Promise((resolve, reject) => {
+        dynamoDb.getDoc().get(sourceSpaceParam, (error, success) => {
+            if (error) reject(error);
+            else resolve(success)
+        });
+    });
+};
+
+const getBalance = (userId, space) => {
 
     const sourceSpaceParam = {
         TableName: process.env.balanceTableName,
@@ -93,7 +109,8 @@ const sendToQueue = (userId, space, txnTag, amount) => {
 };
 
 module.exports = {
-    getTransaction,
+    getBalances,
+    getBalance,
     batchCreateTransaction,
     createTxn,
     sendToQueue

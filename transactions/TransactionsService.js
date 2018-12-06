@@ -52,7 +52,7 @@ const transferMoney = async (userId, fromSpace, toSpace, amountToTransfer) => {
 
     // from logic
     try {
-        const data = await transactionRepository.getTransaction(userId, fromSpace);
+        const data = await transactionRepository.getBalance(userId, fromSpace);
         const currentBalance = data.Item.amount;
 
         if (amountToTransfer > currentBalance)
@@ -65,7 +65,7 @@ const transferMoney = async (userId, fromSpace, toSpace, amountToTransfer) => {
 
     // to logic
     try {
-        const data = await transactionRepository.getTransaction(userId, toSpace);
+        const data = await transactionRepository.getBalance(userId, toSpace);
         const currentBalance = data.Item.amount;
         toUpdatedBalance = currentBalance + amountToTransfer;
     } catch (error) {
@@ -85,7 +85,7 @@ const createTxn = async (userId, space, txnTag, amount) => {
     let balanceToUpdate;
 
     try {
-        const data = await transactionRepository.getTransaction(userId, space);
+        const data = await transactionRepository.getBalance(userId, space);
         const currentBalance = data.Item.amount;
         balanceToUpdate = currentBalance + amount;
     } catch (error) {
@@ -102,7 +102,19 @@ const createTxn = async (userId, space, txnTag, amount) => {
     }
 };
 
+const getBalances = async (userId) => {
+    try {
+        const data = await transactionRepository.getBalances(userId);
+        const response = JSON.stringify(data);
+        console.log(">>>>" + response);
+        return {statusCode: 200, body: response};
+    } catch (error) {
+        return getResponse('Failed to get balances.');
+    }
+};
+
 module.exports = {
     transferMoney,
-    createTxn
+    createTxn,
+    getBalances
 };
