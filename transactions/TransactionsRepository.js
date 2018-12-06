@@ -57,7 +57,6 @@ const batchCreateTransaction = (userId, fromSpace, toSpace, fromUpdatedBalance, 
 };
 
 const createTxn = (userId, space, txnTag, amount) => {
-    console.log("saving to database now : " + userId + " " + space + " " + txnTag + " " + amount);
     const table = {TableName: process.env.balanceTableName};
     const params = {
         Item: {
@@ -68,6 +67,7 @@ const createTxn = (userId, space, txnTag, amount) => {
         }
     };
     const dbParams = Object.assign({}, params, table);
+    console.log(JSON.stringify(dbParams));
     return new Promise((resolve, reject) => {
         dynamoDb.getDoc().put(dbParams, (error, success) => {
             if (error) reject(error);
