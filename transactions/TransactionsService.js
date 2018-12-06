@@ -39,10 +39,10 @@ const getResponseBody = (message) => {
         "followupEventInput": {}
     })
 };
-const getSuccessResponse = () => {
+const getResponse = (message) => {
     return {
         statusCode: 200,
-        body: getResponseBody("Moved money between spaces.")
+        body: getResponseBody(message)
     }
 };
 
@@ -56,11 +56,11 @@ const transferMoney = async (userId, fromSpace, toSpace, amountToTransfer) => {
         const currentBalance = data.Item.amount;
 
         if (amountToTransfer > currentBalance)
-            return getSuccessResponse("Insufficient balance in " + fromSpace + " space");
+            return getResponse("Insufficient balance in " + fromSpace + " space");
 
         fromUpdatedBalance = currentBalance - amountToTransfer;
     } catch (error) {
-        return getSuccessResponse("Error while getting balance in " + fromSpace + " space");
+        return getResponse("Error while getting balance in " + fromSpace + " space");
     }
 
     // to logic
@@ -69,14 +69,14 @@ const transferMoney = async (userId, fromSpace, toSpace, amountToTransfer) => {
         const currentBalance = data.Item.amount;
         toUpdatedBalance = currentBalance + amountToTransfer;
     } catch (error) {
-        return getSuccessResponse("Error while getting balance in " + toSpace + " space");
+        return getResponse("Error while getting balance in " + toSpace + " space");
     }
 
     try {
         await transactionRepository.batchCreateTransaction(userId, fromSpace, toSpace, fromUpdatedBalance, toUpdatedBalance);
-        return getSuccessResponse();
+        return getResponse("Moved money between spaces");
     } catch (error) {
-        return getSuccessResponse("Error while moving money from " + fromSpace + " to " + toSpace);
+        return getResponse("Error while moving money from " + fromSpace + " to " + toSpace);
     }
 };
 
@@ -89,7 +89,7 @@ const createTxn = async (userId, space, txnTag, amount) => {
         const currentBalance = data.Item.amount;
         balanceToUpdate = currentBalance + amount;
     } catch (error) {
-        return getSuccessResponse('Error while getting from transaction.');
+        return getResponse('Error while getting from transaction.');
     }
 
     try {
@@ -97,7 +97,7 @@ const createTxn = async (userId, space, txnTag, amount) => {
         transactionRepository.sendToQueue(userId, space, txnTag, amount);
         return {statusCode: 200, body: JSON.stringify({"message": "success"})};
     } catch (error) {
-        return getSuccessResponse('Error while bulk inserting transactions.');
+        return getResponse('Error while bulk inserting transactions.');
     }
 };
 
