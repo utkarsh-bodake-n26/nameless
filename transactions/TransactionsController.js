@@ -9,7 +9,6 @@ const params = {
 
 module.exports.create = (event, context, callback) => {
   console.log('Received request for all transactions',event);
-
   const requestBody = JSON.parse(event.body);
   console.log("request body", requestBody);
   console.log("query result", requestBody.queryResult);
@@ -19,7 +18,7 @@ module.exports.create = (event, context, callback) => {
     const dbParams = {
         TableName: process.env.balanceTableName,
         Item: {
-            userId: "abc",
+            userId: requestBody.originalDetectIntentRequest.payload.user.userId,
             spaceName: params.destination_space,
             amount: params["unit-currency"].amount
         },
