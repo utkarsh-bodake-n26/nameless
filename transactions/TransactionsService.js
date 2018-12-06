@@ -2,53 +2,48 @@
 
 const transactionRepository = require("./TransactionsRepository");
 
+const getResponseBody = (message) => {
+    return JSON.stringify({
+        "fulfillmentText": "This is a text response",
+        "fulfillmentMessages": [
+            {
+                "card": {
+                    "title": "card title",
+                    "subtitle": "card text",
+                    "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
+                    "buttons": [
+                        {
+                            "text": "button text",
+                            "postback": "https://assistant.google.com/"
+                        }
+                    ]
+                }
+            }
+        ],
+        "source": "example.com",
+        "payload": {
+            "google": {
+                "expectUserResponse": true,
+                "richResponse": {
+                    "items": [
+                        {
+                            "simpleResponse": {
+                                "textToSpeech": message
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "outputContexts": [],
+        "followupEventInput": {}
+    })
+};
 const getSuccessResponse = () => {
     return {
         statusCode: 200,
-        body: JSON.stringify({
-            "fulfillmentText": "This is a text response",
-            "fulfillmentMessages": [
-                {
-                    "card": {
-                        "title": "card title",
-                        "subtitle": "card text",
-                        "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
-                        "buttons": [
-                            {
-                                "text": "button text",
-                                "postback": "https://assistant.google.com/"
-                            }
-                        ]
-                    }
-                }
-            ],
-            "source": "example.com",
-            "payload": {
-                "google": {
-                    "expectUserResponse": true,
-                    "richResponse": {
-                        "items": [
-                            {
-                                "simpleResponse": {
-                                    "textToSpeech": "this is a simple response"
-                                }
-                            }
-                        ]
-                    }
-                }
-            },
-            "outputContexts": [],
-            "followupEventInput": {}
-        })
+        body: getResponseBody("Moved money between spaces.")
     }
-};
-
-const getErrorResponse = (message) => {
-    return {
-        statusCode: 500,
-        headers: {'Content-Type': 'text/plain'},
-        body: JSON.stringify({message})
-    };
 };
 
 const transferMoney = async (userId, fromSpace, toSpace, amountToTransfer) => {
@@ -61,11 +56,11 @@ const transferMoney = async (userId, fromSpace, toSpace, amountToTransfer) => {
         const currentBalance = data.Item.amount;
 
         if (amountToTransfer > currentBalance)
-            return getErrorResponse('Insufficient balance.');
+            return getSuccessResponse("Insufficient balance in " + fromSpace + " space");
 
         fromUpdatedBalance = currentBalance - amountToTransfer;
     } catch (error) {
-        return getErrorResponse('Error while getting from transaction.');
+        return getSuccessResponse("Error while getting balance in " + fromSpace + " space");
     }
 
     // to logic
@@ -74,14 +69,14 @@ const transferMoney = async (userId, fromSpace, toSpace, amountToTransfer) => {
         const currentBalance = data.Item.amount;
         toUpdatedBalance = currentBalance + amountToTransfer;
     } catch (error) {
-        return getErrorResponse('Error while getting to transaction.');
+        return getSuccessResponse("Error while getting balance in " + toSpace + " space");
     }
 
     try {
         await transactionRepository.batchCreateTransaction(userId, fromSpace, toSpace, fromUpdatedBalance, toUpdatedBalance);
         return getSuccessResponse();
     } catch (error) {
-        return getErrorResponse('Error while bulk inserting transactions.');
+        return getSuccessResponse("Error while moving money from " + fromSpace + " to " + toSpace);
     }
 };
 
@@ -94,7 +89,7 @@ const createTxn = async (userId, space, txnTag, amount) => {
         const currentBalance = data.Item.amount;
         balanceToUpdate = currentBalance + amount;
     } catch (error) {
-        return getErrorResponse('Error while getting from transaction.');
+        return getSuccessResponse('Error while getting from transaction.');
     }
 
     try {
@@ -102,7 +97,7 @@ const createTxn = async (userId, space, txnTag, amount) => {
         transactionRepository.sendToQueue(userId, space, txnTag, amount);
         return {statusCode: 200, body: JSON.stringify({"message": "success"})};
     } catch (error) {
-        return getErrorResponse('Error while bulk inserting transactions.');
+        return getSuccessResponse('Error while bulk inserting transactions.');
     }
 };
 
