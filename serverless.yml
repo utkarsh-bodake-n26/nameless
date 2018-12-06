@@ -44,12 +44,19 @@ custom:
   balanceTableName: "nameless.${self:custom.stage}.balance"
 
 functions:
-  list:
-    handler: transactions/TransactionsController.list
+  createDb:
+    handler: transactions/TransactionsController.create
     events:
     - http:
         path: transactions
-        method: get
+        method: post
+        cors: true
+  create:
+    handler: todos/create.create
+    events:
+    - http:
+        path: todo
+        method: post
         cors: true
 
 resources:
