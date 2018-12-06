@@ -1,0 +1,5 @@
+node_modules/*
+coverage/*
+test/*
+newrelic.js
+Gruntfile.js
