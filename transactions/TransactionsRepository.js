@@ -81,6 +81,7 @@ const sendToQueue = (userId, space, txnTag, amount) => {
     const message = {
         userId, space, txnTag, amount
     };
+    console.log("sending message to queue: " + JSON.stringify(message) + " " + queueName);''
     return sqs
         .writeMessage(message, queueName)
         .then(data => {

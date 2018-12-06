@@ -26,6 +26,7 @@ const baseQueueUrl = isOffline()
 const createQueueUrl = queueName => `${baseQueueUrl}${queueName}`;
 
 exports.writeMessage = (message, queueName) => {
+    console.log("sending --- ");
     const params = {
         MessageBody: JSON.stringify(message),
         QueueUrl: createQueueUrl(queueName)
