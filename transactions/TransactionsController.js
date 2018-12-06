@@ -2,6 +2,8 @@
 
 const transactionRepository = require("./TransactionsRepository");
 
+const ruleService = require("./RuleService");
+
 const getSuccessResponse = () => {
     return {
         statusCode: 200,
@@ -66,34 +68,37 @@ module.exports.create = async (event, context) => {
     const amountToTransfer = params["unit-currency"].amount;
     let fromUpdatedBalance, toUpdatedBalance;
 
-    // from logic
-    try {
-        const data = await transactionRepository.getTransaction(userId, fromSpace);
-        const currentBalance = data.Item.amount;
+    if (intent === "set_rule") {
+        ruleService.createRule("userId", params);
+        // return response
+    } else {
+        // from logic
+        try {
+            const data = await transactionRepository.getTransaction(userId, fromSpace);
+            const currentBalance = data.Item.amount;
 
-        console.log("Adhi hote ", currentBalance, "   " + amountToTransfer);
-        if (amountToTransfer > currentBalance) {
-            console.log("Ethe yayal pahile");
-            return getErrorResponse('Insufficient balance.');
+            if (amountToTransfer > currentBalance) {
+                return getErrorResponse('Insufficient balance.');
+            }
+            fromUpdatedBalance = currentBalance - amountToTransfer;
+        } catch (error) {
+            return getErrorResponse('Error while getting from transaction.');
         }
-        fromUpdatedBalance = currentBalance - amountToTransfer;
-    } catch (error) {
-        return getErrorResponse('Error while getting from transaction.');
-    }
 
-    // to logic
-    try {
-        const data = await transactionRepository.getTransaction(userId, toSpace);
-        const currentBalance = data.Item.amount;
-        toUpdatedBalance = currentBalance + amountToTransfer;
-    } catch (error) {
-        return getErrorResponse('Error while getting to transaction.');
-    }
+        // to logic
+        try {
+            const data = await transactionRepository.getTransaction(userId, toSpace);
+            const currentBalance = data.Item.amount;
+            toUpdatedBalance = currentBalance + amountToTransfer;
+        } catch (error) {
+            return getErrorResponse('Error while getting to transaction.');
+        }
 
-    try {
-        await transactionRepository.batchCreateTransaction(userId, fromSpace, toSpace, fromUpdatedBalance, toUpdatedBalance);
-        return getSuccessResponse();
-    } catch (error) {
-        return getErrorResponse('Error while bulk inserting transactions.');
+        try {
+            await transactionRepository.batchCreateTransaction(userId, fromSpace, toSpace, fromUpdatedBalance, toUpdatedBalance);
+            return getSuccessResponse();
+        } catch (error) {
+            return getErrorResponse('Error while bulk inserting transactions.');
+        }
     }
 };

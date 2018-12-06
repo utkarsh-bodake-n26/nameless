@@ -9,6 +9,7 @@ provider:
   stage: local
   environment:
     balanceTableName: ${self:custom.balanceTableName}
+    rulesTableName: ${self:custom.rulesTableName}
   iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -29,14 +30,13 @@ provider:
             - "/*"
       - Effect: Allow
         Action:
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-        - dynamodb:BatchWriteItem
+        - "*"
         Resource: "arn:aws:dynamodb:*:*:table/${self:custom.balanceTableName}"
+      - Effect: Allow
+        Action:
+        - "*"
+        Resource: "arn:aws:dynamodb:*:*:table/${self:custom.rulesTableName}"
+
 
 plugins:
   - serverless-offline
@@ -44,21 +44,15 @@ plugins:
 custom:
   stage: ${opt:stage, self:provider.stage}
   balanceTableName: "nameless.${self:custom.stage}.balance"
+  rulesTableName: "nameless.${self:custom.stage}.rules"
   transactionQueueName: "nameless-${self:custom.stage}-transaction-queue"
 
 functions:
-  createDb:
+  create:
     handler: transactions/TransactionsController.create
     events:
     - http:
         path: transactions
-        method: post
-        cors: true
-  create:
-    handler: todos/create.create
-    events:
-    - http:
-        path: todo
         method: post
         cors: true
   txlistener:
@@ -88,6 +82,20 @@ resources:
           ReadCapacityUnits: 10
           WriteCapacityUnits: 10
         TableName: ${self:custom.balanceTableName}
+    RulesTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 10
+          WriteCapacityUnits: 10
+        TableName: ${self:custom.rulesTableName}
     TransactionQueue:
       Type: 'AWS::SQS::Queue'
       Properties:

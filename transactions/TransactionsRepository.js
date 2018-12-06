@@ -20,15 +20,6 @@ const getTransaction = (userId, space) => {
     });
 };
 
-const createTransaction = (dbParams) => {
-    return new Promise((resolve, reject) => {
-        dynamoDb.getDoc().put(dbParams, (error, success) => {
-            if (error) reject(error);
-            else resolve(success)
-        });
-    });
-};
-
 const batchCreateTransaction = (userId, fromSpace, toSpace, fromUpdatedBalance, toUpdatedBalance) => {
 
     const bulkUpdateParams = {
@@ -66,6 +57,5 @@ const batchCreateTransaction = (userId, fromSpace, toSpace, fromUpdatedBalance, 
 
 module.exports = {
     getTransaction,
-    createTransaction,
     batchCreateTransaction
 };
