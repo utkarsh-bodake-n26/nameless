@@ -44,6 +44,7 @@ plugins:
 custom:
   stage: ${opt:stage, self:provider.stage}
   balanceTableName: "nameless.${self:custom.stage}.balance"
+  transactionQueueName: "nameless-${self:custom.stage}-transaction-queue"
 
 functions:
   createDb:
@@ -60,6 +61,12 @@ functions:
         path: todo
         method: post
         cors: true
+  txlistener:
+    handler: transactions/TransactionListener.process
+    events:
+      - sqs:
+          arn: arn:aws:sqs:eu-central-1:323151569707:${self:custom.transactionQueueName}
+          batchSize: 1
 
 resources:
   Resources:
@@ -81,3 +88,9 @@ resources:
           ReadCapacityUnits: 10
           WriteCapacityUnits: 10
         TableName: ${self:custom.balanceTableName}
+    TransactionQueue:
+      Type: 'AWS::SQS::Queue'
+      Properties:
+        QueueName: ${self:custom.transactionQueueName}
+        MessageRetentionPeriod: 1209600
+        VisibilityTimeout: 60
