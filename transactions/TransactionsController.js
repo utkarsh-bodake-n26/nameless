@@ -52,6 +52,14 @@ const successResponse = {
     }),
 };
 
+const getErrorResponse = (message) => {
+    return {
+        statusCode: 500,
+        headers: {'Content-Type': 'text/plain'},
+        body: JSON.stringify({ message })
+    };
+};
+
 module.exports.create = async (event, context) => {
     console.log('Received request for all transactions', event);
     const requestBody = JSON.parse(event.body);
@@ -64,41 +72,37 @@ module.exports.create = async (event, context) => {
     const userId = requestBody.originalDetectIntentRequest.payload.user.userId;
     const fromSpace = params.source_space;
     const toSpace = params.destination_space;
-    const amount = params["unit-currency"].amount;
+    const amountToTransfer = params["unit-currency"].amount;
+    let fromUpdatedBalance, toUpdatedBalance;
 
-    const bulkUpdateParams = {
-        RequestItems: {
-            [process.env.balanceTableName]: [
-                {
-                    PutRequest: {
-                        Item: {
-                            userId: userId,
-                            spaceName: fromSpace,
-                            amount: amount
-                        }
-                    }
-                },
-                {
-                    PutRequest: {
-                        Item: {
-                            userId: userId,
-                            spaceName: toSpace,
-                            amount: amount
-                        }
-                    }
-                }
-            ]
+    // from logic
+    try {
+        const data = await transactionRepository.getTransaction(userId, fromSpace);
+        const currentBalance = data.Item.amount;
+
+        console.log("Adhi hote ", currentBalance, "   " + amountToTransfer);
+        if (amountToTransfer > currentBalance) {
+            console.log("Ethe yayal pahile");
+            return getErrorResponse('Insufficient balance.');
         }
-    };
+        fromUpdatedBalance = currentBalance - amountToTransfer;
+    } catch (error) {
+        return getErrorResponse('Error while getting from transaction.');
+    }
+
+    // to logic
+    try {
+        const data = await transactionRepository.getTransaction(userId, toSpace);
+        const currentBalance = data.Item.amount;
+        toUpdatedBalance = currentBalance + amountToTransfer;
+    } catch (error) {
+        return getErrorResponse('Error while getting to transaction.');
+    }
 
     try {
-        await transactionRepository.batchCreateTransaction(bulkUpdateParams);
+        await transactionRepository.batchCreateTransaction(userId, fromSpace, toSpace, fromUpdatedBalance, toUpdatedBalance);
         return successResponse;
     } catch (error) {
-        return {
-            statusCode: error.statusCode || 501,
-            headers: {'Content-Type': 'text/plain'},
-            body: 'Couldn\'t create the todo item.',
-        }
+        return getErrorResponse('Error while bulk inserting transactions.');
     }
 };
