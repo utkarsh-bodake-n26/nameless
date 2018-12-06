@@ -1,2 +1,2 @@
 # nameless
-Hackathon project for N26!
+Awesome Hackathon project for N26!
