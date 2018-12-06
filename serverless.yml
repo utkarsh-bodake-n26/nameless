@@ -10,6 +10,7 @@ provider:
   environment:
     balanceTableName: ${self:custom.balanceTableName}
     rulesTableName: ${self:custom.rulesTableName}
+    transactionQueueName: ${self:custom.transactionQueueName}
   iamRoleStatements:
       - Effect: "Allow"
         Action:

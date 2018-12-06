@@ -1,6 +1,7 @@
 'use strict';
 
 const dynamoDb = require('../config/db');
+const sqs = require('../config/sqs');
 
 const getTransaction = (userId, space) => {
 
@@ -74,8 +75,24 @@ const createTxn = (userId, space, txnTag, amount) => {
     });
 };
 
+const sendToQueue = (userId, space, txnTag, amount) => {
+    const queueName = process.env.transactionQueueName;
+    const message = {
+        userId, space, txnTag, amount
+    };
+    return sqs
+        .writeMessage(message, queueName)
+        .then(data => {
+            console.log('successfully sent to queue', data);
+        })
+        .catch(err => {
+            console.log('error occurred while sending to queue', err);
+        });
+};
+
 module.exports = {
     getTransaction,
     batchCreateTransaction,
-    createTxn
+    createTxn,
+    sendToQueue
 };
