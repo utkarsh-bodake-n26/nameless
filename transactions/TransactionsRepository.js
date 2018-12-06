@@ -11,6 +11,17 @@ const createTransaction = (dbParams) => {
     });
 };
 
+const batchCreateTransaction = (dbParams) => {
+
+    return new Promise((resolve, reject) => {
+        dynamoDb.getDoc().batchWrite(dbParams, (error, success) => {
+            if (error) reject(error);
+            else resolve(success)
+        });
+    });
+};
+
 module.exports = {
-    createTransaction
+    createTransaction,
+    batchCreateTransaction
 };

@@ -1,8 +1,58 @@
 'use strict';
 
 const transactionRepository = require("./TransactionsRepository");
+const dynamoDb = require('../config/db');
 
-module.exports.create = (event, context, callback) => {
+module.exports.abcd = async (event, context) => {
+
+    const response = {
+        statusCode: 200,
+        body: JSON.stringify({message: 'hello world'})
+    }
+
+    return response
+}
+
+const successResponse = {
+    statusCode: 200,
+    body: JSON.stringify({
+        "fulfillmentText": "This is a text response",
+        "fulfillmentMessages": [
+            {
+                "card": {
+                    "title": "card title",
+                    "subtitle": "card text",
+                    "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
+                    "buttons": [
+                        {
+                            "text": "button text",
+                            "postback": "https://assistant.google.com/"
+                        }
+                    ]
+                }
+            }
+        ],
+        "source": "example.com",
+        "payload": {
+            "google": {
+                "expectUserResponse": true,
+                "richResponse": {
+                    "items": [
+                        {
+                            "simpleResponse": {
+                                "textToSpeech": "this is a simple response"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "outputContexts": [],
+        "followupEventInput": {}
+    }),
+};
+
+module.exports.create = async (event, context) => {
     console.log('Received request for all transactions', event);
     const requestBody = JSON.parse(event.body);
     console.log("request body", requestBody);
@@ -11,67 +61,12 @@ module.exports.create = (event, context, callback) => {
     const intent = requestBody.queryResult.intent.displayName;
     console.log("intent", intent);
 
-    const dbParams = {
-        TableName: process.env.balanceTableName,
-        Item: {
-            userId: requestBody.originalDetectIntentRequest.payload.user.userId,
-            spaceName: params.destination_space,
-            amount: params["unit-currency"].amount
-        },
-    };
-
-    const successResponse = {
-        statusCode: 200,
-        body: JSON.stringify({
-            "fulfillmentText": "This is a text response",
-            "fulfillmentMessages": [
-                {
-                    "card": {
-                        "title": "card title",
-                        "subtitle": "card text",
-                        "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
-                        "buttons": [
-                            {
-                                "text": "button text",
-                                "postback": "https://assistant.google.com/"
-                            }
-                        ]
-                    }
-                }
-            ],
-            "source": "example.com",
-            "payload": {
-                "google": {
-                    "expectUserResponse": true,
-                    "richResponse": {
-                        "items": [
-                            {
-                                "simpleResponse": {
-                                    "textToSpeech": "this is a simple response"
-                                }
-                            }
-                        ]
-                    }
-                }
-            },
-            "outputContexts": [],
-            "followupEventInput": {}
-        }),
-    };
-
-    transactionRepository.createTransaction(dbParams)
-        .then(() => callback(null, successResponse))
-        .catch(() => callback(null, {
-            statusCode: error.statusCode || 501,
-            headers: {'Content-Type': 'text/plain'},
-            body: 'Couldn\'t create the todo item.',
-        }));
     const userId = requestBody.originalDetectIntentRequest.payload.user.userId;
     const fromSpace = params.source_space;
     const toSpace = params.destination_space;
-    const amount = params["unit-currency"].amount
+    const amount = params["unit-currency"].amount;
 
-    var dbParams1 = {
+    const bulkUpdateParams = {
         RequestItems: {
             [process.env.balanceTableName]: [
                 {
@@ -96,65 +91,14 @@ module.exports.create = (event, context, callback) => {
         }
     };
 
-    // const dbParams = {
-    //     TableName: process.env.balanceTableName,
-    //     Item: {
-    //         userId: userId,
-    //         spaceName: toSpace,
-    //         amount: amount
-    //     },
-    // };
-
-    dynamoDb.batchWrite(dbParams1, (error) => {
-        // handle potential errors
-        if (error) {
-            console.error(error);
-            callback(null, {
-                statusCode: error.statusCode || 501,
-                headers: {'Content-Type': 'text/plain'},
-                body: 'Couldn\'t create the todo item.',
-            });
-            return;
+    try {
+        await transactionRepository.batchCreateTransaction(bulkUpdateParams);
+        return successResponse;
+    } catch (error) {
+        return {
+            statusCode: error.statusCode || 501,
+            headers: {'Content-Type': 'text/plain'},
+            body: 'Couldn\'t create the todo item.',
         }
-
-        const response = {
-            statusCode: 200,
-            body: JSON.stringify({
-                "fulfillmentText": "This is a text response",
-                "fulfillmentMessages": [
-                    {
-                        "card": {
-                            "title": "card title",
-                            "subtitle": "card text",
-                            "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
-                            "buttons": [
-                                {
-                                    "text": "button text",
-                                    "postback": "https://assistant.google.com/"
-                                }
-                            ]
-                        }
-                    }
-                ],
-                "source": "example.com",
-                "payload": {
-                    "google": {
-                        "expectUserResponse": true,
-                        "richResponse": {
-                            "items": [
-                                {
-                                    "simpleResponse": {
-                                        "textToSpeech": "this is a simple response"
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                },
-                "outputContexts": [],
-                "followupEventInput": {}
-            }),
-        };
-        callback(null, response);
-    });
+    }
 };
