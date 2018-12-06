@@ -29,6 +29,7 @@
     "istanbul": "0.4.5",
     "mocha": "3.4.2",
     "should": "11.2.1",
-    "simple-mock": "0.8.0"
+    "simple-mock": "0.8.0",
+    "aws-sdk": "^2.169.0"
   }
 }

@@ -1,13 +1,6 @@
 'use strict';
 
-
-const transactionRepository = require("TransactionsRepository");
-const AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies
-
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
-const params = {
-    TableName: process.env.balanceTableName,
-};
+const transactionRepository = require("./TransactionsRepository");
 
 module.exports.create = (event, context, callback) => {
     console.log('Received request for all transactions', event);

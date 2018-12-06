@@ -38,7 +38,8 @@ provider:
         - dynamodb:BatchWriteItem
         Resource: "arn:aws:dynamodb:*:*:table/${self:custom.balanceTableName}"
 
-
+plugins:
+  - serverless-offline
 
 custom:
   stage: ${opt:stage, self:provider.stage}
