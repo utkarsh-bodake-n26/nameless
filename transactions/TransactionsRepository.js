@@ -58,7 +58,7 @@ const batchCreateTransaction = (userId, fromSpace, toSpace, fromUpdatedBalance, 
 
 const createTxn = (userId, space, txnTag, amount) => {
     console.log("saving to database now : " + userId + " " + space + " " + txnTag + " " + amount);
-    const table = {TableName: process.env.rulesTableName};
+    const table = {TableName: process.env.balanceTableName};
     const params = {
         Item: {
             userId: userId,
