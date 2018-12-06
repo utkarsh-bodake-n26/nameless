@@ -39,8 +39,8 @@ const getSuccessResponse = () => {
             },
             "outputContexts": [],
             "followupEventInput": {}
-        });
-}
+        })
+    }
 };
 
 const getErrorResponse = (message) => {
