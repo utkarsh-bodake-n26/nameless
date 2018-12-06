@@ -37,6 +37,11 @@ provider:
         Action:
         - "*"
         Resource: "arn:aws:dynamodb:*:*:table/${self:custom.rulesTableName}"
+      - Effect: "Allow"
+        Action:
+        - "sqs:SendMessage"
+        Resource:
+        - "arn:aws:sqs:*:*:${self:custom.transactionQueueName}"
 
 
 plugins:
