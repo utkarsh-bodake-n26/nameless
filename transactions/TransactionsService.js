@@ -106,7 +106,6 @@ const getBalances = async (userId) => {
     try {
         const data = await transactionRepository.getBalances(userId);
         const response = JSON.stringify(data);
-        console.log(">>>>" + response);
         return {statusCode: 200, body: response};
     } catch (error) {
         return getResponse('Failed to get balances.');

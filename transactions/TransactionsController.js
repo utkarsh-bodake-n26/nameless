@@ -13,3 +13,10 @@ module.exports.create = async (event, context) => {
 
     return transactionsService.createTxn(userId, space, txnTag, amount);
 };
+
+
+module.exports.getBalances = async (event, context) => {
+    const userId = event.pathParameters.userId;
+
+    return transactionsService.getBalances(userId);
+};

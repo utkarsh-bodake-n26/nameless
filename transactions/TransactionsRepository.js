@@ -4,15 +4,17 @@ const dynamoDb = require('../config/db');
 const sqs = require('../config/sqs');
 
 const getBalances = (userId) => {
-    const sourceSpaceParam = {
+
+    const queryParams = {
         TableName: process.env.balanceTableName,
-        Key: {
-            userId: userId
+        KeyConditionExpression: 'userId = :hkey',
+        ExpressionAttributeValues: {
+            ':hkey': userId
         }
     };
 
     return new Promise((resolve, reject) => {
-        dynamoDb.getDoc().get(sourceSpaceParam, (error, success) => {
+        dynamoDb.getDoc().query(queryParams, (error, success) => {
             if (error) reject(error);
             else resolve(success)
         });
@@ -97,7 +99,7 @@ const sendToQueue = (userId, space, txnTag, amount) => {
     const message = {
         userId, space, txnTag, amount
     };
-    console.log("sending message to queue: " + JSON.stringify(message) + " " + queueName);''
+    console.log("sending message to queue: " + JSON.stringify(message) + " " + queueName);
     return sqs
         .writeMessage(message, queueName)
         .then(data => {
