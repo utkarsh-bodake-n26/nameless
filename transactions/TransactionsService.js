@@ -89,7 +89,8 @@ const createTxn = async (userId, space, txnTag, amount) => {
         const currentBalance = data.Item.amount;
         balanceToUpdate = currentBalance + amount;
     } catch (error) {
-        return getResponse('Error while getting from transaction.');
+        console.log("Balance does exist for user");
+        balanceToUpdate = amount;
     }
 
     try {
@@ -97,7 +98,7 @@ const createTxn = async (userId, space, txnTag, amount) => {
         transactionRepository.sendToQueue(userId, space, txnTag, amount);
         return {statusCode: 200, body: JSON.stringify({"message": "success"})};
     } catch (error) {
-        return getResponse('Error while bulk inserting transactions.');
+        return getResponse('Error while inserting transaction.');
     }
 };
 
