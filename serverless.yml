@@ -61,6 +61,13 @@ functions:
       - sqs:
           arn: arn:aws:sqs:eu-central-1:323151569707:${self:custom.transactionQueueName}
           batchSize: 1
+  txCreate:
+    handler: transactions/TransactionsController.create
+    events:
+    - http:
+        path: transactions
+        method: post
+        cors: true
 
 resources:
   Resources:

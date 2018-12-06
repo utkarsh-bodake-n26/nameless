@@ -55,7 +55,27 @@ const batchCreateTransaction = (userId, fromSpace, toSpace, fromUpdatedBalance, 
     });
 };
 
+const createTxn = (userId, space, txnTag, amount) => {
+    const params = {
+        PutRequest: {
+            Item: {
+                userId: userId,
+                space: space,
+                txnTag: txnTag,
+                amount: amount
+            }
+        }
+    };
+    return new Promise((resolve, reject) => {
+        dynamoDb.getDoc().put(params, (error, success) => {
+            if (error) reject(error);
+            else resolve(success)
+        });
+    });
+};
+
 module.exports = {
     getTransaction,
-    batchCreateTransaction
+    batchCreateTransaction,
+    createTxn
 };

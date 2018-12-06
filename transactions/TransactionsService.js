@@ -85,6 +85,27 @@ const transferMoney = async (userId, fromSpace, toSpace, amountToTransfer) => {
     }
 };
 
+const createTxn = async (userId, space, txnTag, amount) => {
+
+    let balanceToUpdate;
+
+    try {
+        const data = await transactionRepository.getTransaction(userId, space);
+        const currentBalance = data.Item.amount;
+        balanceToUpdate = currentBalance + amount;
+    } catch (error) {
+        return getErrorResponse('Error while getting from transaction.');
+    }
+
+    try {
+        await transactionRepository.createTxn(userId, space, txnTag, balanceToUpdate);
+        return {statusCode: 200, body: JSON.stringify({"message": "success"})};
+    } catch (error) {
+        return getErrorResponse('Error while bulk inserting transactions.');
+    }
+};
+
 module.exports = {
-    transferMoney
+    transferMoney,
+    createTxn
 };
