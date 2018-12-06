@@ -61,7 +61,7 @@ const createTxn = (userId, space, txnTag, amount) => {
     const params = {
         Item: {
             userId: userId,
-            space: space,
+            spaceName: space,
             txnTag: txnTag,
             amount: amount
         }
