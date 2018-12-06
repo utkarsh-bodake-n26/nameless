@@ -9,9 +9,9 @@ stages:
   - dev
 jobs:
   include:
-    - stage: test
-      script:
-        - npm install-test
+#    - stage: test
+#      script:
+#        - npm install-test
     - stage: dev
       script:
         - npm install -g serverless
