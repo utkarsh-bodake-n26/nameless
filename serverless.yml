@@ -48,11 +48,11 @@ custom:
   transactionQueueName: "nameless-${self:custom.stage}-transaction-queue"
 
 functions:
-  create:
-    handler: transactions/TransactionsController.create
+  handleIntent:
+    handler: transactions/IntentController.handleIntent
     events:
     - http:
-        path: transactions
+        path: webhook
         method: post
         cors: true
   txlistener:

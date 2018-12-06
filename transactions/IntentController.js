@@ -3,7 +3,7 @@
 const transactionsService = require("./TransactionsService");
 const ruleService = require("./RuleService");
 
-module.exports.create = async (event, context) => {
+module.exports.handleIntent = async (event, context) => {
     console.log('Received request for all transactions', JSON.parse(event.body));
     const requestBody = JSON.parse(event.body);
     const params = requestBody.queryResult.parameters;
