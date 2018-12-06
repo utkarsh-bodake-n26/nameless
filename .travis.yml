@@ -1,10 +1,18 @@
 language: node_js
 node_js:
-- node
+  - node
 cache:
   directories:
   - node_modules
-script:
-- npm install -g serverless
-- npm install-test
-- sls deploy -v
+stages:
+  - test
+  - dev
+jobs:
+  include:
+    - stage: test
+      script:
+        - npm install-test
+    - stage: dev
+      script:
+        - npm install -g serverless
+        - sls deploy -v
