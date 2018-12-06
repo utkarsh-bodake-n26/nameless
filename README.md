@@ -1,3 +1,6 @@
+
+[![Build Status](https://travis-ci.org/utkarsh-bodake-n26/nameless.svg?branch=master)](https://travis-ci.org/utkarsh-bodake-n26/nameless)
+
 <!--
 title: 'AWS Serverless REST API example in NodeJS'
 description: 'This example demonstrates how to setup a RESTful Web Service allowing you to create, list, get, update and delete Todos. DynamoDB is used to store the data.'
