@@ -9,8 +9,6 @@ provider:
   stage: local
   environment:
     balanceTableName: ${self:custom.balanceTableName}
-    aws_access_key_id: ${env:aws_access_key_id}
-    aws_secret_access_key: ${env:aws_secret_access_key}
   iamRoleStatements:
       - Effect: "Allow"
         Action:
