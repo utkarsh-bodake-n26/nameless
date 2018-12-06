@@ -8,6 +8,7 @@ const params = {
 };
 
 module.exports.list = (event, context, callback) => {
+  console.log('Received request for all transactions');
   dynamoDb.scan(params, (error, result) => {
     if (error) {
       console.error(error);
