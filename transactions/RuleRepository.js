@@ -17,6 +17,24 @@ const createRule = (userId, params) => {
     });
 };
 
+const getRuleForUser = (userId) => {
+    console.log(userId);
+    const params = {
+        TableName: process.env.rulesTableName,
+        Key: {
+            userId: userId
+        }
+    };
+
+    return new Promise((resolve, reject) => {
+        dynamoDb.getDoc().get(params, (error, success) => {
+            if (error) reject(error);
+            else resolve(success)
+        });
+    });
+};
+
 module.exports = {
-    createRule
+    createRule,
+    getRuleForUser
 };
