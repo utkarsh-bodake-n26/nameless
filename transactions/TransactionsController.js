@@ -1,62 +1,53 @@
 'use strict';
 
 const transactionRepository = require("./TransactionsRepository");
-const dynamoDb = require('../config/db');
 
-module.exports.abcd = async (event, context) => {
-
-    const response = {
+const getSuccessResponse = () => {
+    return {
         statusCode: 200,
-        body: JSON.stringify({message: 'hello world'})
-    }
-
-    return response
-}
-
-const successResponse = {
-    statusCode: 200,
-    body: JSON.stringify({
-        "fulfillmentText": "This is a text response",
-        "fulfillmentMessages": [
-            {
-                "card": {
-                    "title": "card title",
-                    "subtitle": "card text",
-                    "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
-                    "buttons": [
-                        {
-                            "text": "button text",
-                            "postback": "https://assistant.google.com/"
-                        }
-                    ]
-                }
-            }
-        ],
-        "source": "example.com",
-        "payload": {
-            "google": {
-                "expectUserResponse": true,
-                "richResponse": {
-                    "items": [
-                        {
-                            "simpleResponse": {
-                                "textToSpeech": "this is a simple response"
+        body: JSON.stringify({
+            "fulfillmentText": "This is a text response",
+            "fulfillmentMessages": [
+                {
+                    "card": {
+                        "title": "card title",
+                        "subtitle": "card text",
+                        "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
+                        "buttons": [
+                            {
+                                "text": "button text",
+                                "postback": "https://assistant.google.com/"
                             }
-                        }
-                    ]
+                        ]
+                    }
                 }
-            }
-        },
-        "outputContexts": [],
-        "followupEventInput": {}
-    }),
+            ],
+            "source": "example.com",
+            "payload": {
+                "google": {
+                    "expectUserResponse": true,
+                    "richResponse": {
+                        "items": [
+                            {
+                                "simpleResponse": {
+                                    "textToSpeech": "this is a simple response"
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "outputContexts": [],
+            "followupEventInput": {}
+        });
+}
 };
 
 const getErrorResponse = (message) => {
     return {
         statusCode: 500,
         headers: {'Content-Type': 'text/plain'},
-        body: JSON.stringify({ message })
+        body: JSON.stringify({message})
     };
 };
 
@@ -101,7 +92,7 @@ module.exports.create = async (event, context) => {
 
     try {
         await transactionRepository.batchCreateTransaction(userId, fromSpace, toSpace, fromUpdatedBalance, toUpdatedBalance);
-        return successResponse;
+        return getSuccessResponse();
     } catch (error) {
         return getErrorResponse('Error while bulk inserting transactions.');
     }
