@@ -95,7 +95,7 @@ const createTxn = async (userId, space, txnTag, amount) => {
 
     try {
         await transactionRepository.createTxn(userId, space, txnTag, balanceToUpdate);
-        transactionRepository.sendToQueue(userId, space, txnTag, amount);
+        await transactionRepository.sendToQueue(userId, space, txnTag, amount);
         return {statusCode: 200, body: JSON.stringify({"message": "success"})};
     } catch (error) {
         return getResponse('Error while inserting transaction.');
