@@ -4,6 +4,8 @@ frameworkVersion: ">=1.1.0 <2.0.0"
 
 provider:
   name: aws
+  key: ${aws_access_key_id}
+  secret: ${aws_secret_access_key}
   runtime: nodejs6.10
   region: eu-central-1
   stage: dev
