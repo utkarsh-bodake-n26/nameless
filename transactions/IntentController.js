@@ -10,8 +10,11 @@ module.exports.handleIntent = async (event, context) => {
     const intent = requestBody.queryResult.intent.displayName;
 
     if (intent === "set_rule") {
+        //TODO: Don't hard code `userId` vs use
+        // const userId = requestBody.originalDetectIntentRequest.payload.user.userId;
+        // Check if this intent get the user id too.
         ruleService.createRule("userId", params);
-        // return response
+        // TODO: return response saying DONE
     } else {
         const userId = requestBody.originalDetectIntentRequest.payload.user.userId;
         const fromSpace = params.source_space;
