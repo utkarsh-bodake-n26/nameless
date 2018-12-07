@@ -1,9 +1,9 @@
 'use strict';
 
 const localstack = require('../settings/localstack');
-// const awsXRay = require('aws-xray-sdk');
-// const AWS = awsXRay.captureAWS(require('aws-sdk'));
-const AWS = require('aws-sdk');
+const awsXRay = require('aws-xray-sdk');
+const AWS = awsXRay.captureAWS(require('aws-sdk'));
+// const AWS = require('aws-sdk');
 
 AWS.config.update({
     region: 'eu-central-1'
