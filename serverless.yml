@@ -12,40 +12,47 @@ provider:
     rulesTableName: ${self:custom.rulesTableName}
     transactionQueueName: ${self:custom.transactionQueueName}
   iamRoleStatements:
-      - Effect: "Allow"
-        Action:
-        - "s3:ListBucket"
-        Resource:
-          Fn::Join:
-          - ""
-          - - "arn:aws:s3:::"
-            - Ref: ServerlessDeploymentBucket
-      - Effect: "Allow"
-        Action:
-        - "s3:PutObject"
-        Resource:
-          Fn::Join:
-          - ""
-          - - "arn:aws:s3:::"
-            - Ref: "ServerlessDeploymentBucket"
-            - "/*"
-      - Effect: Allow
-        Action:
-        - "*"
-        Resource: "arn:aws:dynamodb:*:*:table/${self:custom.balanceTableName}"
-      - Effect: Allow
-        Action:
-        - "*"
-        Resource: "arn:aws:dynamodb:*:*:table/${self:custom.rulesTableName}"
-      - Effect: "Allow"
-        Action:
-        - "sqs:SendMessage"
-        Resource:
-        - "arn:aws:sqs:*:*:${self:custom.transactionQueueName}"
+    - Effect: "Allow"
+      Action:
+      - "xray:PutTraceSegments"
+      - "xray:PutTelemetryRecords"
+      Resource:
+      - "*"
+    - Effect: "Allow"
+      Action:
+      - "s3:ListBucket"
+      Resource:
+        Fn::Join:
+        - ""
+        - - "arn:aws:s3:::"
+          - Ref: ServerlessDeploymentBucket
+    - Effect: "Allow"
+      Action:
+      - "s3:PutObject"
+      Resource:
+        Fn::Join:
+        - ""
+        - - "arn:aws:s3:::"
+          - Ref: "ServerlessDeploymentBucket"
+          - "/*"
+    - Effect: Allow
+      Action:
+      - "*"
+      Resource: "arn:aws:dynamodb:*:*:table/${self:custom.balanceTableName}"
+    - Effect: Allow
+      Action:
+      - "*"
+      Resource: "arn:aws:dynamodb:*:*:table/${self:custom.rulesTableName}"
+    - Effect: "Allow"
+      Action:
+      - "sqs:SendMessage"
+      Resource:
+      - "arn:aws:sqs:*:*:${self:custom.transactionQueueName}"
 
 
 plugins:
   - serverless-offline
+  - serverless-plugin-tracing
 
 custom:
   stage: ${opt:stage, self:provider.stage}
