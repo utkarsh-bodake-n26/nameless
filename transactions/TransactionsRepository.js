@@ -74,13 +74,12 @@ const batchCreateTransaction = (userId, fromSpace, toSpace, fromUpdatedBalance, 
     });
 };
 
-const createTxn = (userId, space, txnTag, amount) => {
+const createTxn = (userId, space, amount) => {
     const table = {TableName: process.env.balanceTableName};
     const params = {
         Item: {
             userId: userId,
             spaceName: space,
-            txnTag: txnTag,
             amount: amount
         }
     };

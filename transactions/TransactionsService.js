@@ -52,7 +52,7 @@ const createTxn = async (userId, space, txnTag, amount) => {
     }
 
     try {
-        await transactionRepository.createTxn(userId, space, txnTag, balanceToUpdate);
+        await transactionRepository.createTxn(userId, space, balanceToUpdate);
         await transactionRepository.sendToQueue(userId, space, txnTag, amount);
         return utils.getHttpResponse(200, {"message": "success"});
     } catch (error) {
@@ -71,7 +71,7 @@ const getBalances = async (userId) => {
             travel: 0,
             gift: 0
         };
-        for (let item in items) {
+        for (let item of items) {
             if(item.spaceName === 'main') {
                 r['main'] = item.amount;
             }
