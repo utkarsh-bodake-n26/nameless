@@ -1,57 +1,7 @@
 'use strict';
 
 const transactionRepository = require("./TransactionsRepository");
-
-const getResponseBody = (message) => {
-    return JSON.stringify({
-        "fulfillmentText": "This is a text response",
-        "fulfillmentMessages": [
-            {
-                "card": {
-                    "title": "card title",
-                    "subtitle": "card text",
-                    "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
-                    "buttons": [
-                        {
-                            "text": "button text",
-                            "postback": "https://assistant.google.com/"
-                        }
-                    ]
-                }
-            }
-        ],
-        "source": "example.com",
-        "payload": {
-            "google": {
-                "expectUserResponse": true,
-                "richResponse": {
-                    "items": [
-                        {
-                            "simpleResponse": {
-                                "textToSpeech": message
-                            }
-                        }
-                    ]
-                }
-            }
-        },
-        "outputContexts": [],
-        "followupEventInput": {}
-    })
-};
-const getIntentResponse = (message) => {
-    return {
-        statusCode: 200,
-        body: getResponseBody(message)
-    }
-};
-
-const getHttpResponse = (status, body) => {
-    return {
-        statusCode: status,
-        body: JSON.stringify(body)
-    }
-};
+const utils = require("./Utils");
 
 const transferMoney = async (userId, fromSpace, toSpace, amountToTransfer) => {
 
@@ -63,11 +13,11 @@ const transferMoney = async (userId, fromSpace, toSpace, amountToTransfer) => {
         const currentBalance = data.Item.amount;
 
         if (amountToTransfer > currentBalance)
-            return getIntentResponse("Insufficient balance in " + fromSpace + " space");
+            return utils.getIntentResponse("Insufficient balance in " + fromSpace + " space");
 
         fromUpdatedBalance = currentBalance - amountToTransfer;
     } catch (error) {
-        return getIntentResponse("Error while getting balance in " + fromSpace + " space");
+        return utils.getIntentResponse("Error while getting balance in " + fromSpace + " space");
     }
 
     // to logic
@@ -76,14 +26,14 @@ const transferMoney = async (userId, fromSpace, toSpace, amountToTransfer) => {
         const currentBalance = data.Item.amount;
         toUpdatedBalance = currentBalance + amountToTransfer;
     } catch (error) {
-        return getIntentResponse("Error while getting balance in " + toSpace + " space");
+        return utils.getIntentResponse("Error while getting balance in " + toSpace + " space");
     }
 
     try {
         await transactionRepository.batchCreateTransaction(userId, fromSpace, toSpace, fromUpdatedBalance, toUpdatedBalance);
-        return getIntentResponse("Moved money between spaces");
+        return utils.getIntentResponse("Moved money between spaces");
     } catch (error) {
-        return getIntentResponse("Error while moving money from " + fromSpace + " to " + toSpace);
+        return utils.getIntentResponse("Error while moving money from " + fromSpace + " to " + toSpace);
     }
 };
 
@@ -104,9 +54,10 @@ const createTxn = async (userId, space, txnTag, amount) => {
     try {
         await transactionRepository.createTxn(userId, space, txnTag, balanceToUpdate);
         await transactionRepository.sendToQueue(userId, space, txnTag, amount);
-        return getHttpResponse(500, {"message": "success"});
+        return utils.getHttpResponse(200, {"message": "success"});
     } catch (error) {
-        return getHttpResponse(500, error)
+        console.log(JSON.stringify(error));
+        return utils.getHttpResponse(500, error)
     }
 };
 
@@ -116,7 +67,7 @@ const getBalances = async (userId) => {
         const response = JSON.stringify(data.Items);
         return {statusCode: 200, body: response};
     } catch (error) {
-        return getHttpResponse(500, error)
+        return utils.getHttpResponse(500, error)
     }
 };
 

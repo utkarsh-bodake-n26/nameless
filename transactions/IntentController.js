@@ -3,6 +3,8 @@
 const transactionsService = require("./TransactionsService");
 const ruleService = require("./RuleService");
 
+const utils = require("./Utils");
+
 module.exports.handleIntent = async (event, context) => {
     console.log('Received request for all transactions', JSON.parse(event.body));
     const requestBody = JSON.parse(event.body);
@@ -10,11 +12,15 @@ module.exports.handleIntent = async (event, context) => {
     const intent = requestBody.queryResult.intent.displayName;
 
     if (intent === "set_rule") {
-        //TODO: Don't hard code `userId` vs use
-        // const userId = requestBody.originalDetectIntentRequest.payload.user.userId;
-        // Check if this intent get the user id too.
-        ruleService.createRule("userId", params);
-        // TODO: return response saying DONE
+        const userId = requestBody.originalDetectIntentRequest.payload.user.userId;
+        console.log(">>>>>" + userId);
+        try {
+            await ruleService.createRule("userId", params);
+            return utils.getIntentResponse("Moved money between spaces");
+        } catch (error) {
+            console.log(JSON.stringify(error));
+            return utils.getIntentResponse("Error while setting rule");
+        }
     } else {
         const userId = requestBody.originalDetectIntentRequest.payload.user.userId;
         const fromSpace = params.source_space;

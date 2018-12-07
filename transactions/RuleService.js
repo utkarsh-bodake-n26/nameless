@@ -2,12 +2,12 @@
 
 const ruleRepository = require("./RuleRepository");
 
-module.exports.createRule = (userId, params) => {
+module.exports.createRule = async (userId, params) => {
     if (!params.hasOwnProperty('source_space') || params.source_space === "") {
         params['source_space'] = "main"
     }
 
     params.percentage = parseInt(params.percentage.replace('%', '').trim());
 
-    ruleRepository.createRule(userId, params)
+    return ruleRepository.createRule(userId, params)
 };
