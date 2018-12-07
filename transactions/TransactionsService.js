@@ -64,7 +64,28 @@ const createTxn = async (userId, space, txnTag, amount) => {
 const getBalances = async (userId) => {
     try {
         const data = await transactionRepository.getBalances(userId);
-        const response = JSON.stringify(data.Items);
+        let items = data.Items;
+        let r = {
+            main: 0,
+            saving: 0,
+            travel: 0,
+            gift: 0
+        };
+        for (let item in items) {
+            if(item.spaceName === 'main') {
+                r['main'] = item.amount;
+            }
+            if(item.spaceName === 'saving') {
+                r['saving'] = item.amount;
+            }
+            if(item.spaceName === 'travel') {
+                r['travel'] = item.amount;
+            }
+            if(item.spaceName === 'gift') {
+                r['gift'] = item.amount;
+            }
+        }
+        const response = JSON.stringify(r);
         return {statusCode: 200, body: response};
     } catch (error) {
         return utils.getHttpResponse(500, error)
