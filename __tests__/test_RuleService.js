@@ -2,29 +2,31 @@
 
 const ruleService = require("./../transactions/RuleService");
 const ruleRepository = require("./../transactions/RuleRepository");
+const utils = require("./../transactions/Utils");
 
 jest.mock('./../transactions/RuleRepository');
+jest.mock('./../transactions/Utils');
 
 describe("RuleService", () => {
 
     it("should add source_space as main if not present", () => {
-        const params = {"percentage": "100%"};
-        ruleService.createRule("userId", params);
-
-        expect(ruleRepository.createRule).toBeCalledWith("userId", {"source_space": "main", "percentage": 100});
+        return ruleService.createRule("userId", undefined, "to", "100%", "salary")
+            .then(() => {
+                expect(ruleRepository.createRule).toBeCalledWith("userId", "main", "to", 100, "salary")
+            });
     });
 
     it("should add source_space as main if empty", () => {
-        const params = {"source_space": "", "percentage": "100%"};
-        ruleService.createRule("userId", params);
-
-        expect(ruleRepository.createRule).toBeCalledWith("userId", {"source_space": "main", "percentage": 100});
+        return ruleService.createRule("userId", "", "to", "100%", "salary")
+            .then(() => {
+                expect(ruleRepository.createRule).toBeCalledWith("userId", "main", "to", 100, "salary")
+            });
     });
 
     it("should parse percentage param", () => {
-        const params = {"source_space": "saving", "percentage": "10%"};
-        ruleService.createRule("userId", params);
-
-        expect(ruleRepository.createRule).toBeCalledWith("userId", {"source_space": "saving", "percentage": 10});
+        return ruleService.createRule("userId", "main", "to", "10%", "salary")
+            .then(() => {
+                expect(ruleRepository.createRule).toBeCalledWith("userId", "main", "to", 10, "salary")
+            });
     });
 });
