@@ -9,7 +9,5 @@ module.exports.createRule = (userId, params) => {
 
     params.percentage = parseInt(params.percentage.replace('%', '').trim());
 
-    console.log(params);
-
     ruleRepository.createRule(userId, params)
 };

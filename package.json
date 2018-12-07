@@ -8,7 +8,7 @@
     "uuid": "^2.0.3"
   },
   "scripts": {
-    "test": "NODE_ENV=testing grunt",
+    "test": "jest",
     "lint": "node node_modules/.bin/eslint --quiet ./. test/ && echo Lint Passed."
   },
   "devDependencies": {
