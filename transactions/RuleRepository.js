@@ -2,18 +2,17 @@
 
 const dynamoDb = require('../config/db');
 
-const table = {TableName: process.env.rulesTableName};
 
-const createRule = (userId, params) => {
+const createRule = (userId, source_space, toSpace, percentage, txnTag) => {
 
     const saveParams = {
         TableName: process.env.rulesTableName,
         Item: {
             userId: userId,
-            txnTag: params.txnTag,
-            percentage: params.percentage,
-            source_space: params.source_space,
-            destination_space: params.destination_space
+            txnTag: txnTag,
+            percentage: percentage,
+            source_space: source_space,
+            destination_space: toSpace
         }
     };
     return new Promise((resolve, reject) => {

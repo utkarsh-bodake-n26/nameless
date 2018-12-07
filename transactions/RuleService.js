@@ -2,14 +2,23 @@
 
 const ruleRepository = require("./RuleRepository");
 
-const createRule = async (userId, params) => {
-    if (!params.hasOwnProperty('source_space') || params.source_space === "") {
-        params['source_space'] = "main"
+const utils = require("./Utils");
+
+const createRule = async (userId, fromSpace, toSpace, percentage, txnTag) => {
+    let source_space = fromSpace;
+    if (!fromSpace || fromSpace === "") {
+        source_space = "main"
     }
 
-    params.percentage = parseInt(params.percentage.replace('%', '').trim());
+    percentage = parseInt(percentage.replace('%', '').trim());
 
-    return ruleRepository.createRule(userId, params)
+    try {
+        await ruleRepository.createRule(userId, source_space, toSpace, percentage, txnTag);
+        return utils.getIntentResponse("Rule created successfully");
+    } catch (error) {
+        console.log(JSON.stringify(error));
+        return utils.getIntentResponse("Error while setting rule");
+    }
 };
 
 module.exports = {
