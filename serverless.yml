@@ -63,6 +63,7 @@ custom:
 functions:
   handleIntent:
     handler: transactions/IntentController.handleIntent
+    tracing: true
     events:
     - http:
         path: webhook
@@ -70,12 +71,14 @@ functions:
         cors: true
   txlistener:
     handler: transactions/TransactionListener.process
+    tracing: true
     events:
       - sqs:
           arn: arn:aws:sqs:eu-central-1:323151569707:${self:custom.transactionQueueName}
           batchSize: 1
   txCreate:
     handler: transactions/TransactionsController.create
+    tracing: true
     events:
     - http:
         path: transactions
@@ -83,6 +86,7 @@ functions:
         cors: true
   getBalances:
     handler: transactions/TransactionsController.getBalances
+    tracing: true
     events:
     - http:
         path: balances/{userId}
