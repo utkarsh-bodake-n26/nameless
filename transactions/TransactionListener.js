@@ -16,9 +16,9 @@ module.exports.process = (event, context, callback) => {
 
     ruleRepository.getRuleForUser(userId)
         .then(rule => {
-            if (transactionPayload.tags.includes(rule.Item.txnTag)) {
+            console.log("Rule " + JSON.stringify(rule));
+            if (transactionPayload.txnTag === rule.Item.txnTag) {
                 const amountToTransfer = (transactionPayload.amount * rule.Item.percentage) / 100;
-                console.log(amountToTransfer);
 
                 return transactionService.transferMoney(
                     userId,
