@@ -11,23 +11,23 @@ const transactionService = require("./TransactionsService");
 module.exports.process = (event, context, callback) => {
     const payload = event.Records[0].body;
     console.log("SQS payload: " + payload);
-    const payloadObject = JSON.parse(payload);
-    let userId = payloadObject.userId;
+    const transactionPayload = JSON.parse(payload);
+    let userId = transactionPayload.userId;
 
     ruleRepository.getRuleForUser(userId)
-        .then(result => {
-            if(payloadObject.tags.includes(result.Item.txnTag)) {
-                const amountToTransfer = (payloadObject.amount * result.Item.percentage) / 100;
+        .then(rule => {
+            if (transactionPayload.tags.includes(rule.Item.txnTag)) {
+                const amountToTransfer = (transactionPayload.amount * rule.Item.percentage) / 100;
                 console.log(amountToTransfer);
 
                 return transactionService.transferMoney(
                     userId,
-                    result.Item.source_space,
-                    result.Item.destination_space,
+                    rule.Item.source_space,
+                    rule.Item.destination_space,
                     amountToTransfer
                 );
             }
         })
-        .then(() => console.log("SUCCESS!!!"))
-        .catch(() => console.log("FAILED!!!"))
+        .then(() => console.log("Successfully inserted rule for " + userId))
+        .catch(() => console.log("Ignored. Not rule found for " + userId))
 };
